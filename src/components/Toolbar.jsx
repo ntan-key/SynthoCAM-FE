@@ -87,8 +87,8 @@ const Toolbar = () => {
     }, []);
 
     return (
-        <div className='w-full px-2 absolute inset-0 flex items-end justify-between pointer-events-none p-3'>
-            <div className="h-12 w-full p-2 flex items-center gap-5">
+        <div className='w-full absolute inset-0 flex items-end justify-between p-2'>
+            <div className="h-12 w-full flex items-center gap-5">
                 <button onClick={recordButtonPress}>
                     <img src={record? Stop : Record} alt="Record button" className='h-8'/>
                 </button>

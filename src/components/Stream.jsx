@@ -5,11 +5,13 @@ import Stats from './Stats'
 import FileManager from './FileManager';
 
 import { useWebSocket } from "./WebSocketContext";
-        
+import { useEffect } from 'react';
+
 
 const Stream = () => {
     // JS goes here
     const { remoteAudioRef, remoteVideoRef } = useWebSocket();
+    // let audioElement = document.getElementById('audio-element');s
     return (
         <div className='flex flex-1 overflow-hidden flex-wrap justify-center'>
             <div className="flex flex-col flex-1 items-center justify-center gap-1 p-5">
@@ -45,7 +47,7 @@ const Stream = () => {
                 <input type='text' placeholder='Video Title.mp4' className='w-full p-1 rounded-sm border border-border text-white font-bold text-lg'></input>
             </div>
             <FileManager></FileManager>
-            <audio ref={remoteAudioRef} autoPlay />
+            <audio ref={remoteAudioRef} autoPlay id='audio-element'/>
         </div>   
     )
 }
