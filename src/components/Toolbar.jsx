@@ -1,8 +1,12 @@
 import Record from '../assets/record.png'
 import Stop from '../assets/stop.png'
+import Play from '../assets/play.png'
 import Volume from '../assets/volume.png'
 import Mute from '../assets/mute.png'
-import { Button } from 'primereact/button'
+import Maximise from '../assets/maximise.png'
+import Minimise from '../assets/minimise.png'
+
+
 import { useState, useEffect, useRef } from 'react'
 
 const Toolbar = () => {
@@ -10,6 +14,7 @@ const Toolbar = () => {
 
     const [record, setRecord] = useState(false);
     const [sound, setSound] = useState(true);
+    const [max, setMax] = useState(false);
     const [startTime, setStartTime] = useState(Date.now());
     const [time, setTime] = useState('00:00:00');
     const recordRef = useRef(record);
@@ -28,6 +33,7 @@ const Toolbar = () => {
         }
     }
 
+
     const soundButtonPress = () => {
         if (sound) {
             console.log('Mute button pressed')
@@ -36,6 +42,18 @@ const Toolbar = () => {
         else {
             console.log('Sound button pressed')
             setSound(true)
+        }
+    }
+
+
+    const maxMinButtonPress = () => {
+        if (max) {
+            console.log('Min button pressed')
+            setMax(false)
+        }
+        else {
+            console.log('Max button pressed')
+            setMax(true)
         }
     }
 
@@ -69,14 +87,19 @@ const Toolbar = () => {
     }, []);
 
     return (
-        <div className="h-12 w-full p-2 flex items-center gap-5">
-            <Button onClick={recordButtonPress}>
-                <img src={record? Stop : Record} alt="Record button" className='h-8'/>
-            </Button>
-            <Button onClick={soundButtonPress}>
-                <img src={sound? Volume : Mute} alt="Volume button" className='h-8'/>
-            </Button>
-            <div className='text-white'>{time}</div>
+        <div className='w-full px-2 absolute inset-0 flex items-end justify-between pointer-events-none p-3'>
+            <div className="h-12 w-full p-2 flex items-center gap-5">
+                <button onClick={recordButtonPress}>
+                    <img src={record? Stop : Record} alt="Record button" className='h-8'/>
+                </button>
+                <button onClick={soundButtonPress}>
+                    <img src={sound? Volume : Mute} alt="Volume button" className='h-8'/>
+                </button>
+                <div className='text-white'>{time}</div>
+            </div>
+            <button onClick={maxMinButtonPress}>
+                <img src={max? Minimise : Maximise} alt="Max Min button" className='h-8'/>
+            </button>
         </div>
     );
 }

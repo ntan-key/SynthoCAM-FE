@@ -26,3 +26,7 @@
     --color-navbar: #1b1b2e;
     --color-border: #3e4d75;
 }
+
+button {
+  cursor: pointer;
+}
