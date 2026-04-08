@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useWebSocket } from "./WebSocketContext";
+import { useEffect, useState, useContext } from "react"
+import { AppContext } from "./AppContext";
 
 
 const Stats = () => {
@@ -9,14 +9,19 @@ const Stats = () => {
     const [storage, setStorage] = useState(125);
     const [totalStorage, setTotalStorage] = useState(255);
 
-    const { message } = useWebSocket();
+    const { remoteStatsState } = useContext(AppContext);
+    const [remoteStats, setRemoteStats] = remoteStatsState;
+
 
     useEffect(() => {
-        setTemperature(message["cpu_temp"])
-        setCpu(message["cpu_use"])
-        setStorage(Math.round(message["store_use"] / (10**9)*10)/10)
-        setTotalStorage(Math.round(message["store_tot"] / (10**9)*10)/10)
-    }, [message]);
+        if (remoteStats !== null) {
+            // console.log(remoteStats)
+            setTemperature(remoteStats["cpu_temp"])
+            setCpu(remoteStats["cpu_usage"])
+            setStorage(Math.round(remoteStats["storage_total"] / (10**9)*10)/10)
+            setTotalStorage(Math.round(remoteStats["storage_used"] / (10**9)*10)/10)
+        }
+    }, [remoteStats]);
 
     return (
         <div className='absolute inset-0 flex pointer-events-none p-3'>
