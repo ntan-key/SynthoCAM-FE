@@ -5,9 +5,9 @@ import { useContext, useEffect, useState } from 'react';
 
 const FileManager = () => {
     // JS goes here
-    const { ip, port, wsStatusState } = useContext(AppContext);
+    const { ip, port, wsStatusState, fileListState } = useContext(AppContext);
     const [ wsStatus, setWsStatus ] = wsStatusState;
-    const [ fileList, setFileList ] = useState([]);
+    const [ fileList, setFileList ] = fileListState;
 
 
     const get_capture_list = async() => {
@@ -52,7 +52,7 @@ const FileManager = () => {
     }, [wsStatus])
 
 
-    useEffect(() => {}, [fileList])
+    useEffect(() => {console.log(fileList)}, [fileList])
 
 
     return (

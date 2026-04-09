@@ -17,6 +17,7 @@ export const AppContextProvider = ({ip, port, children}) => {
 
     const [record, setRecord] = useState(false);
     const [filename, setFilename] = useState('');
+    const [ fileList, setFileList ] = useState([]);
 
 
     const iceServers = [
@@ -83,6 +84,10 @@ export const AppContextProvider = ({ip, port, children}) => {
 
                     else if (data.type == "recording-saved"){
                         console.log('recording-saved')
+                        console.log(data)
+                        // setFileList([...fileList, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
+                        setFileList(prev => [...prev, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
+                        console.log(fileList)
                     }
                 }
             }
@@ -121,6 +126,9 @@ export const AppContextProvider = ({ip, port, children}) => {
         const pc = new RTCPeerConnection({ "iceServers": iceServers, "iceTransportPolicy": "all" });
         pcRef.current = pc;
 
+        pc.addTransceiver("video", {direction: "recvonly"});
+        pc.addTransceiver("audio", {direction: "recvonly"});
+
         pc.ontrack = (event) => {
             console.log('pc.ontrack');
             const track = event.track;
@@ -130,6 +138,9 @@ export const AppContextProvider = ({ip, port, children}) => {
             } else if (track.kind == 'audio') {
                 console.log('pc.audio track added');
                 audioRef.current.srcObject = event.streams[0];
+                // console.log(audioRef.current);
+                // console.log(audioRef.current.srcObject);
+                // audioRef.current.muted = true;
                 setAudioStream(event.streams[0])
             }
         }
@@ -165,10 +176,7 @@ export const AppContextProvider = ({ip, port, children}) => {
         try{
             // browser sends an offer first, backend processes the offer
             console.log('sending offer')
-            const offer = await pc.createOffer({
-                offerToReceiveVideo: true,
-                offerToReceiveAudio: true
-            });
+            const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
 
             wsRef.current.send(JSON.stringify({
@@ -222,6 +230,7 @@ export const AppContextProvider = ({ip, port, children}) => {
             remoteStatsState: [remoteStats, setRemoteStats],
             recordState: [record, setRecord],
             filenameState: [filename, setFilename],
+            fileListState: [fileList, setFileList],
         }}>
             {children}
         </AppContext.Provider>

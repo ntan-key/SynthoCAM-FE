@@ -10,7 +10,7 @@ import { AppContext } from './AppContext'
 
 import { useState, useEffect, useRef, useContext } from 'react'
 
-const FILE_EXTENSION = '.avi';
+const FILE_EXTENSION = '.mp4';
 
 
 const Toolbar = () => {
