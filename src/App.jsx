@@ -23,14 +23,10 @@ function App() {
         <div className='flex flex-1 overflow-hidden flex-wrap justify-center'>
           <div className="flex flex-col flex-1 items-center justify-center gap-1 p-5">
             <div className="border border-border rounded-xl h-full w-full flex flex-col flex-1 justify-center items-center">
-              <div className='w-full h-full relative'>
-                <Stats></Stats>
-                <Stream></Stream>
-                <Toolbar></Toolbar>
-              </div>
+              <Stream></Stream>
             </div>
             <FilenameInput></FilenameInput>
-            {/* <AudioSpectrum></AudioSpectrum> */}
+            <AudioSpectrum></AudioSpectrum>
           </div>
           <FileManager></FileManager>
         </div> 

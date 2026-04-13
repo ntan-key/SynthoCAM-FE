@@ -12,23 +12,35 @@ export const AppContextProvider = ({ip, port, children}) => {
     
     const videoRef = useRef(null);
     const audioRef = useRef(null);
-    const [ audioStream, setAudioStream ] = useState(null);
+    const [audioStream, setAudioStream] = useState(null);
+
     const [remoteStats, setRemoteStats] = useState(null);
 
+    const [mute, setMute] = useState(false);
+    const [volume, setVolume] = useState(100);
     const [record, setRecord] = useState(false);
-    const [filename, setFilename] = useState('');
-    const [ fileList, setFileList ] = useState([]);
 
+    const [lowerCutoff, setLowerCutoff] = useState(0);
+    const [upperCutoff, setUpperCutoff] = useState(100);
+    const analyserRef = useRef(null);
+    const gainRef = useRef(null);
+    const filterLowRef = useRef(null);
+    const filterHighRef = useRef(null);
+
+    const [filename, setFilename] = useState('');
+    const [fileList, setFileList] = useState([]);
 
     const iceServers = [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' }
     ];
+
     
     const connectWs = () => {
         console.log('attempting to connect to websocket...')
         let heartbeatInterval = null;
-        const ws = new WebSocket(`ws://${ip}:${port}`);
+        const ws = new WebSocket(`ws://${ip}:${port}/`);
+        // const ws = new WebSocket(`ws://${window.location.host}/api/`);
         wsRef.current = ws;
         setWsStatus(ws.readyState)
 
@@ -135,12 +147,38 @@ export const AppContextProvider = ({ip, port, children}) => {
             if (track.kind == 'video') {
                 console.log('pc.video track added');
                 videoRef.current.srcObject = event.streams[0];
+                videoRef.current.muted = true;  // ensure sound is coming from audio stream not video stream
             } else if (track.kind == 'audio') {
                 console.log('pc.audio track added');
-                audioRef.current.srcObject = event.streams[0];
-                // console.log(audioRef.current);
-                // console.log(audioRef.current.srcObject);
-                // audioRef.current.muted = true;
+                
+                // here
+
+                const audioContext = new AudioContext();
+                const source = audioContext.createMediaStreamSource(event.streams[0]);
+                const analyser = audioContext.createAnalyser();
+                analyserRef.current = analyser;
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = volume / 100;
+                gainRef.current = gainNode;
+
+                const filterLow = audioContext.createBiquadFilter();
+                filterLow.type = "highpass";
+                filterLowRef.current = filterLow;
+                filterLow.frequency.value = lowerCutoff * 100;  // cutoff frequency
+
+                const filterHigh = audioContext.createBiquadFilter();
+                filterHigh.type = "lowpass";
+                filterHighRef.current = filterHigh;
+                filterHigh.frequency.value = upperCutoff * 100;  // cutoff frequency
+
+                source.connect(gainNode);
+                gainNode.connect(filterLow);
+                filterLow.connect(filterHigh);
+                filterHigh.connect(analyser);
+                analyser.connect(audioContext.destination)  // connects audio context to speakers
+
+                // to here
+
                 setAudioStream(event.streams[0])
             }
         }
@@ -228,7 +266,15 @@ export const AppContextProvider = ({ip, port, children}) => {
             audioRef,
             audioStreamState: [audioStream, setAudioStream],
             remoteStatsState: [remoteStats, setRemoteStats],
+            analyserRef,
+            gainRef,
+            filterLowRef,
+            filterHighRef,
+            muteState: [mute, setMute],
+            volumeState: [volume, setVolume],
             recordState: [record, setRecord],
+            lowerCutoffState: [lowerCutoff, setLowerCutoff],
+            upperCutoffState: [upperCutoff, setUpperCutoff],
             filenameState: [filename, setFilename],
             fileListState: [fileList, setFileList],
         }}>

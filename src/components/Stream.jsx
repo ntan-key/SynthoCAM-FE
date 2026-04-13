@@ -1,31 +1,39 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from "./AppContext";
+import Toolbar from './Toolbar';
+import Stats from './Stats';
 
 
 const Stream = () => {
     // JS goes here
     const { videoRef, audioRef } = useContext(AppContext);
-    // const audioElement = document.getElementById('audio-element');
-    // const [ volume, setVolume ] = useState(0.1);
+    const containerRef = useRef(null);
+    const [fullScreen, setFullScreen] = useState(false);
+    const audioElement = document.getElementById('audio-element');
 
-    // useEffect(() => {
-    //     if (audioElement) {
-    //         audioElement.volume = volume
-    //         audioRef.current.volume = volume
-    //     }
-    // }, [volume])
+
+    const onFullScreen = () => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+        else {
+            containerRef.current.requestFullscreen();
+        }
+        setFullScreen(!fullScreen);
+    }
 
 
     return (
-        <>
+        <div ref={containerRef} className='w-full h-full relative'>
+            <Stats></Stats>
             <video
                     ref={videoRef}
                     autoPlay
                     playsInline
                     className={`w-full h-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
                 />   
-            <audio ref={audioRef} autoPlay playsInline id='audio-element'/>
-        </>     
+            <Toolbar fullScreen={fullScreen} setFullScreen={setFullScreen} onFullScreen={onFullScreen}></Toolbar>
+        </div>     
     )
 }
 

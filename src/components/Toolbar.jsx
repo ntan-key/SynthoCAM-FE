@@ -1,10 +1,9 @@
 import Record from '../assets/record.png'
 import Stop from '../assets/stop.png'
 import Play from '../assets/play.png'
-import Volume from '../assets/volume.png'
-import Mute from '../assets/mute.png'
 import Maximise from '../assets/maximise.png'
 import Minimise from '../assets/minimise.png'
+import VolumeButton from './VolumeButton'
 
 import { AppContext } from './AppContext'
 
@@ -13,13 +12,11 @@ import { useState, useEffect, useRef, useContext } from 'react'
 const FILE_EXTENSION = '.mp4';
 
 
-const Toolbar = () => {
+const Toolbar = ({fullScreen, setFullScreen, onFullScreen}) => {
     // JS goes here
-    const { wsRef, recordState, filenameState } = useContext(AppContext);
+    const { wsRef, videoRef, recordState, filenameState } = useContext(AppContext);
     const [record, setRecord] = recordState;
-    const [ filename, setFilename ] = filenameState;
-    const [sound, setSound] = useState(true);
-    const [maximise, setMaximise] = useState(false);
+    const [filename, setFilename] = filenameState;
     const [startTime, setStartTime] = useState(Date.now());
     const [time, setTime] = useState('00:00:00');
 
@@ -48,30 +45,6 @@ const Toolbar = () => {
                 filename: filenameFull
             }));
             console.log(filenameFull)
-        }
-    }
-
-
-    const soundButtonPress = () => {
-        if (sound) {
-            console.log('Mute button pressed')
-            setSound(false)
-        }
-        else {
-            console.log('Sound button pressed')
-            setSound(true)
-        }
-    }
-
-
-    const maxMinButtonPress = () => {
-        if (maximise) {
-            console.log('Min button pressed')
-            setMaximise(false)
-        }
-        else {
-            console.log('Max button pressed')
-            setMaximise(true)
         }
     }
 
@@ -113,13 +86,14 @@ const Toolbar = () => {
                 <button onClick={recordButtonPress}>
                     <img src={record? Stop : Record} alt="Record button" className='h-8'/>
                 </button>
-                <button onClick={soundButtonPress}>
-                    <img src={sound? Volume : Mute} alt="Volume button" className='h-8'/>
-                </button>
+                
+                <VolumeButton></VolumeButton>
+                
                 <div className='text-white'>{time}</div>
             </div>
-            <button onClick={maxMinButtonPress}>
-                <img src={maximise? Minimise : Maximise} alt="Max Min button" className='h-8'/>
+            
+            <button onClick={onFullScreen}>
+                <img src={fullScreen? Minimise: Maximise} alt="Max Min button" className='h-8'/>
             </button>
         </div>
     );

@@ -31,9 +31,31 @@ const VideoTile = ({title, onDelete}) => {
     const op = useRef(null);
 
 
+    const send_download = async() => {
+        // const res = await fetch(`http://${ip}:${port}/capture/download`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         title: title
+        //     }),
+        // })
+
+        // const data = await res.json()
+        // if (data.status == 'ok'){
+        //     console.log('video downloaded')
+        // }
+        window.location.href = `/capture/download?title=${title}`;
+        // window.location.href = `/api/capture/download?title=${title}`;
+    }
+
+
     const download_button_press = (e) => {
-        console.log(`download button pressed: ${title}`)
-        op.current.toggle(e)
+        console.log(`download button pressed: ${title}`);
+        op.current.toggle(e);
+        send_download();
     }
 
 
@@ -69,11 +91,11 @@ const VideoTile = ({title, onDelete}) => {
                     <h1 className='text-white text-sm text-left'>{title}</h1>
                 </div>
             </button>
-        <button className='text-white h-min' style={{lineHeight: 0.8 }} onClick={download_button_press}>...</button>
+        <button className='text-white h-min' style={{lineHeight: 0.8 }} onClick={(e) => op.current.toggle(e)}>...</button>
         <OverlayPanel ref={op} className='bg-white rounded-sm'>
             <ul className='flex flex-col gap-1'>
                 <li>
-                    <button className='flex gap-2 p-2 rounded-sm hover:bg-gray-200' onClick={(e) => op.current.toggle(e)}>
+                    <button className='flex gap-2 p-2 rounded-sm hover:bg-gray-200' onClick={download_button_press}>
                         <img src={Download} alt="Download icon" className='h-5'/>
                         <div>Download</div>
                     </button>
