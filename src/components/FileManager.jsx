@@ -17,6 +17,7 @@ const FileManager = () => {
             return res.json();
         })
         .then((data) => {
+            console.log(data)
             setFileList(data['capture_list'])
         })
         .catch((error) => {
@@ -58,7 +59,7 @@ const FileManager = () => {
     return (
             <div className='flex flex-col w-full md:w-70 border-x border-border p-5 overflow-y-scroll h-full gap-3'>
                 {fileList.map((item, i) => (
-                    <VideoTile key={i} title={item.title} onDelete={send_delete}/>
+                    <VideoTile key={i} title={item.title} onDelete={send_delete} thumbnail={item.thumbnail}/>
                 ))}
             </div>
     )

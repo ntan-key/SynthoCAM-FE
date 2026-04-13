@@ -3,7 +3,7 @@ import Download from '../assets/download.png';
 import Delete from '../assets/delete.png';
 import { AppContext } from './AppContext';
 
-import { useRef, useContext } from 'react';
+import { useRef, useContext, useEffect } from 'react';
 
         
 // Source - https://stackoverflow.com/a/29823632
@@ -25,7 +25,7 @@ import { useRef, useContext } from 'react';
 // })();
 
 
-const VideoTile = ({title, onDelete}) => {
+const VideoTile = ({title, onDelete, thumbnail}) => {
     // JS goes here
     const { ip, port } = useContext(AppContext);
     const op = useRef(null);
@@ -83,11 +83,14 @@ const VideoTile = ({title, onDelete}) => {
         onDelete(title);
     }
 
+
     return (
         <div className='flex gap-2 justify-center'>
             <button className='w-full'>
                 <div className='flex flex-col'>
-                    <div className='bg-bg-mid aspect-video rounded-md'></div>
+                    <div className='bg-bg-mid aspect-video rounded-md'>
+                        <img src={`data:image/jpg;base64,${thumbnail}`} alt="video thumbnail" className='rounded-md'/>
+                    </div>
                     <h1 className='text-white text-sm text-left'>{title}</h1>
                 </div>
             </button>
