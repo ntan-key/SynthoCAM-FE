@@ -1,0 +1,7 @@
+.volume-slider {
+    display: none;
+}
+
+.volume-container:hover .volume-slider {
+    display: inline;
+}

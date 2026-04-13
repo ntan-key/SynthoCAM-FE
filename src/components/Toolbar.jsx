@@ -1,61 +1,53 @@
 import Record from '../assets/record.png'
 import Stop from '../assets/stop.png'
 import Play from '../assets/play.png'
-import Volume from '../assets/volume.png'
-import Mute from '../assets/mute.png'
 import Maximise from '../assets/maximise.png'
 import Minimise from '../assets/minimise.png'
+import VolumeButton from './VolumeButton'
+
+import { AppContext } from './AppContext'
+
+import { useState, useEffect, useRef, useContext } from 'react'
+
+const FILE_EXTENSION = '.mp4';
 
 
-import { useState, useEffect, useRef } from 'react'
-
-const Toolbar = () => {
+const Toolbar = ({fullScreen, setFullScreen, onFullScreen}) => {
     // JS goes here
-
-    const [record, setRecord] = useState(false);
-    const [sound, setSound] = useState(true);
-    const [max, setMax] = useState(false);
+    const { wsRef, videoRef, recordState, filenameState } = useContext(AppContext);
+    const [record, setRecord] = recordState;
+    const [filename, setFilename] = filenameState;
     const [startTime, setStartTime] = useState(Date.now());
     const [time, setTime] = useState('00:00:00');
+
     const recordRef = useRef(record);
     const startTimeRef = useRef(startTime);
 
+
     const recordButtonPress = () => {
         if (record) {
-            console.log('Stop record button pressed')
+            console.log('Stop record button pressed toolbar')
             setTime('00:00:00');
             setRecord(false)
+            wsRef.current.send(JSON.stringify({
+                type: 'recording-end',
+            }));
         }
         else {
-            console.log('Start record button pressed')
+            console.log('Start record button pressed toolbar')
+            let date = new Date();
+            let timestamp = `${date.getFullYear()}_${(date.getMonth() + 1 < 10)? `0${date.getMonth() + 1}`: date.getMonth() + 1}_${(date.getDate() < 10)? `0${date.getDate()}`: date.getDate()}_${(date.getHours() < 10)? `0${date.getHours()}`: date.getHours()}_${(date.getMinutes() < 10)? `0${date.getMinutes()}`: date.getMinutes()}_${(date.getSeconds() < 10)? `0${date.getSeconds()}`: date.getSeconds()}`;
             setStartTime(Date.now())
             setRecord(true)
+            let filenameFull = (filename==''? `video_${timestamp}` : filename) + FILE_EXTENSION
+            wsRef.current.send(JSON.stringify({
+                type: 'recording-start',
+                filename: filenameFull
+            }));
+            console.log(filenameFull)
         }
     }
 
-
-    const soundButtonPress = () => {
-        if (sound) {
-            console.log('Mute button pressed')
-            setSound(false)
-        }
-        else {
-            console.log('Sound button pressed')
-            setSound(true)
-        }
-    }
-
-
-    const maxMinButtonPress = () => {
-        if (max) {
-            console.log('Min button pressed')
-            setMax(false)
-        }
-        else {
-            console.log('Max button pressed')
-            setMax(true)
-        }
-    }
 
     const formatTime = (msTime) => {
         let sTime = Math.round(msTime / 1000);
@@ -73,6 +65,7 @@ const Toolbar = () => {
         return `${hours}:${minutes}:${seconds}`;
     };
 
+
     useEffect(() => { recordRef.current = record });
     useEffect(() => { startTimeRef.current = startTime });
     useEffect(() => {
@@ -86,19 +79,21 @@ const Toolbar = () => {
         }
     }, []);
 
+
     return (
         <div className='w-full absolute inset-0 flex items-end justify-between p-2'>
             <div className="h-12 w-full flex items-center gap-5">
                 <button onClick={recordButtonPress}>
                     <img src={record? Stop : Record} alt="Record button" className='h-8'/>
                 </button>
-                <button onClick={soundButtonPress}>
-                    <img src={sound? Volume : Mute} alt="Volume button" className='h-8'/>
-                </button>
+                
+                <VolumeButton></VolumeButton>
+                
                 <div className='text-white'>{time}</div>
             </div>
-            <button onClick={maxMinButtonPress}>
-                <img src={max? Minimise : Maximise} alt="Max Min button" className='h-8'/>
+            
+            <button onClick={onFullScreen}>
+                <img src={fullScreen? Minimise: Maximise} alt="Max Min button" className='h-8'/>
             </button>
         </div>
     );
