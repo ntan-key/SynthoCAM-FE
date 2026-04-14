@@ -3,10 +3,6 @@
     --ColorPrimaryLt: #31689b;
 }
 
-body {
-	padding: 60px 16px 0;
-}
-
 .range-slider {
     --range-slider-common-height: 16px;
     --range-slider-handle-width: 24px;

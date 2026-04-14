@@ -15,11 +15,10 @@ const Stats = () => {
 
     useEffect(() => {
         if (remoteStats !== null) {
-            // console.log(remoteStats)
             setTemperature(remoteStats["cpu_temp"])
             setCpu(remoteStats["cpu_usage"])
-            setStorage(Math.round(remoteStats["storage_total"] / (10**9)*10)/10)
-            setTotalStorage(Math.round(remoteStats["storage_used"] / (10**9)*10)/10)
+            setStorage(Math.round(remoteStats["storage_used"] / (10**9)*10)/10)
+            setTotalStorage(Math.round(remoteStats["storage_total"] / (10**9)*10)/10)
         }
     }, [remoteStats]);
 

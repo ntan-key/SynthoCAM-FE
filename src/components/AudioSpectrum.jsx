@@ -5,30 +5,16 @@ import Slider from './Slider';
 
 
 const AudioSpectrum = () => {
-    const { audioStreamState, analyserRef, muteState, volumeState, lowerCutoffState, upperCutoffState } = useContext(AppContext);
+    const { audioStreamState, analyserRef } = useContext(AppContext);
     const [ audioStream, setAudioStream ] = audioStreamState;
-    // const [mute, setMute] = muteState;
-    // const [volume, setVolume] = volumeState;
-    // const [lowerCutoff, setLowerCutoff] = lowerCutoffState;
-    // const [upperCutoff, setUpperCutoff] = upperCutoffState;
-    // const gainRef = useRef(null);
 
     const [ audioData, setAudioData ] = useState(null);
     const canvasRef = useRef(null);
     const [timeFreq, setTimeFreq] = useState(true)
 
-    const audioContext = null;
-    const source = null;
-    // const analyser = null;
-
 
     useEffect(() => {
         if (audioStream) {
-            // const audioContext = new AudioContext();
-            // const source = audioContext.createMediaStreamSource(audioStream);
-            // const analyser = audioContext.createAnalyser();
-            // const gainNode = audioContext.createGain();
-            // gainRef.current = gainNode;
 
             if (timeFreq) {
                 // Time
@@ -38,20 +24,6 @@ const AudioSpectrum = () => {
                 // Frequency
                 analyserRef.current.fftSize = 256;
             }
-
-            // const filterLow = audioContext.createBiquadFilter();
-            // filterLow.type = "highpass";
-            // filterLow.frequency.value = lowerCutoff;  // cutoff frequency
-
-            // const filterHigh = audioContext.createBiquadFilter();
-            // filterHigh.type = "lowpass";
-            // filterHigh.frequency.value = upperCutoff;  // cutoff frequency
-
-            // source.connect(gainNode);
-            // gainNode.connect(filterLow);
-            // filterLow.connect(filterHigh);
-            // filterHigh.connect(analyser);
-            // analyser.connect(audioContext.destination)  // connects audio context to speakers
 
             let bufferLength;
             if (timeFreq) {
@@ -155,43 +127,22 @@ const AudioSpectrum = () => {
             draw();
 
         };
-
-        // return () => {
-        //     if (audioContext) {
-        //         audioContext.close();
-        //     }
-        //     if (source) {
-        //         source.disconnect();
-        //     }
-        //     if (analyserRef.current) {
-        //         analyser.disconnect();
-        //     }
-        // };
         
     }, [audioStream, timeFreq])
 
 
-    // useEffect(() => {
-    //     if (gainRef.current) {
-    //         if (mute) {
-    //             gainRef.current.gain.value = 0.0;
-    //         }
-    //         else {
-    //             gainRef.current.gain.value = volume / 100;
-    //         }
-    //     }
-    // }, [mute, volume])
-
     return (
-        <div className='flex flex-col gap-5'>
-            <div className="h-full w-full border border-border rounded-lg flex flex-col gap-5">
+        <div className='flex flex-col gap-10 w-full'>
+            <div className="relative h-full w-full border border-border rounded-lg flex flex-col gap-5">
+                <div className='absolute top-2 right-2 z-10'>
+                    <Switch setTimeFreq={setTimeFreq}></Switch>
+                </div>
                 <canvas ref={canvasRef} className='h-full w-full bg-white rounded-lg'></canvas>
-            </div>
-            <Switch setTimeFreq={setTimeFreq}></Switch>
             <Slider></Slider>
+            </div>
         </div>
         
     )
 }
 
-export default AudioSpectrum
+export default AudioSpectrum;

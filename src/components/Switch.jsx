@@ -14,12 +14,11 @@ const Switch = ({setTimeFreq}) => {
     }
     return (
         <div className='flex text-white gap-1'>
-            <div>Freq</div>
             <input type="checkbox" id={"switch"} className="switch-checkbox" onChange={toggle} checked={on} />
             <label htmlFor={"switch"} className="switch-label" id='label' style={{background: on && '#06D6A0'}}>
                 <span className="switch-button"></span>
+                <span className={"w-full font-bold " + (on? "text-start" : "text-end")}>{on? "Time" : "Freq."}</span>
             </label>
-            <div>Time</div>
         </div>
     )
 }

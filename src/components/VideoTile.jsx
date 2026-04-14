@@ -32,23 +32,7 @@ const VideoTile = ({title, onDelete, thumbnail}) => {
 
 
     const send_download = async() => {
-        // const res = await fetch(`http://${ip}:${port}/capture/download`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         title: title
-        //     }),
-        // })
-
-        // const data = await res.json()
-        // if (data.status == 'ok'){
-        //     console.log('video downloaded')
-        // }
-        window.location.href = `/capture/download?title=${title}`;
-        // window.location.href = `/api/capture/download?title=${title}`;
+        window.location.href = `http://${ip}:${port}/capture/download?title=${encodeURIComponent(title)}`;
     }
 
 
@@ -89,7 +73,7 @@ const VideoTile = ({title, onDelete, thumbnail}) => {
             <button className='w-full'>
                 <div className='flex flex-col'>
                     <div className='bg-bg-mid aspect-video rounded-md'>
-                        <img src={`data:image/jpg;base64,${thumbnail}`} alt="video thumbnail" className='rounded-md'/>
+                        <img src={`data:image/jpg;base64,${thumbnail}`} alt="video thumbnail" className='rounded-md w-full h-full'/>
                     </div>
                     <h1 className='text-white text-sm text-left'>{title}</h1>
                 </div>
