@@ -20,12 +20,13 @@ export const AppContextProvider = ({ip, port, children}) => {
     const [volume, setVolume] = useState(100);
     const [record, setRecord] = useState(false);
 
-    const [lowerCutoff, setLowerCutoff] = useState(0);
-    const [upperCutoff, setUpperCutoff] = useState(100);
+    const [lowerCutoff, setLowerCutoff] = useState(20);
+    const [upperCutoff, setUpperCutoff] = useState(20000);
     const analyserRef = useRef(null);
     const gainRef = useRef(null);
     const filterLowRef = useRef(null);
     const filterHighRef = useRef(null);
+    const audioContextRef = useRef(new AudioContext());
 
     const [filename, setFilename] = useState('');
     const [fileList, setFileList] = useState([]);
@@ -39,96 +40,102 @@ export const AppContextProvider = ({ip, port, children}) => {
     const connectWs = () => {
         console.log('attempting to connect to websocket...')
         let heartbeatInterval = null;
-        const ws = new WebSocket(`ws://${ip}:${port}/`);
-        // const ws = new WebSocket(`ws://${window.location.host}/api/`);
-        wsRef.current = ws;
-        setWsStatus(ws.readyState)
-
-        ws.onopen = () => {
-            console.log('ws.onopen')
+        try{
+            console.log(window.location.host)
+            // const ws = new WebSocket(`wss://${ip}:${port}/ws`);
+            const ws = new WebSocket(`wss://${window.location.host}/ws`);
+            wsRef.current = ws;
             setWsStatus(ws.readyState)
 
-            setTimeout(() => connectPc(), 0)
+            ws.onopen = () => {
+                console.log('ws.onopen')
+                setWsStatus(ws.readyState)
 
-            // heartbeat every 5 seconds
-            heartbeatInterval = setInterval(() => {
-                if (ws.readyState == WebSocket.OPEN){
-                    ws.send(JSON.stringify({
-                        type: "heartbeat"
-                    }))
-                }
-            }, 5000)
-        }
+                setTimeout(() => connectPc(), 0)
 
-        ws.onmessage = async(event) => {
-            setWsStatus(ws.readyState)
-            const data = JSON.parse(event.data)
+                // heartbeat every 5 seconds
+                heartbeatInterval = setInterval(() => {
+                    if (ws.readyState == WebSocket.OPEN){
+                        ws.send(JSON.stringify({
+                            type: "heartbeat"
+                        }))
+                    }
+                }, 5000)
+            }
 
-            try{
-                // heartbeat response
-                if (data.type !== "heartbeat-response"){
+            ws.onmessage = async(event) => {
+                setWsStatus(ws.readyState)
+                const data = JSON.parse(event.data)
 
-                    if (data.type == "answer") {
-                        // answer from offer sent to create peer connection
-                        console.log('ws answer')
-                        if (pcRef.current.signalingState == 'have-local-offer'){  // check valid state, and not react re-render
-                            console.log(pcRef.current.signalingState)
-                            await pcRef.current.setRemoteDescription(new RTCSessionDescription({
-                                type: data.type,
-                                sdp: data.sdp
-                            }));
+                try{
+                    // heartbeat response
+                    if (data.type !== "heartbeat-response"){
+
+                        if (data.type == "answer") {
+                            // answer from offer sent to create peer connection
+                            console.log('ws answer')
+                            if (pcRef.current.signalingState == 'have-local-offer'){  // check valid state, and not react re-render
+                                console.log(pcRef.current.signalingState)
+                                await pcRef.current.setRemoteDescription(new RTCSessionDescription({
+                                    type: data.type,
+                                    sdp: data.sdp
+                                }));
+                            }
+                        }
+
+                        else if (data.type == "ice-candidate") { 
+                            // received new ice candidate from backend, add to connection and try to use it
+                            console.log('ws ice-candidate')
+                            await pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        }
+
+                        else if (data.type == "error") {
+                            console.log(`ws server error: ${data.message}`)
+                        }
+
+                        else if (data.type == "remote-stats"){
+                            setRemoteStats(data)
+                        }
+
+                        else if (data.type == "recording-saved"){
+                            console.log('recording-saved')
+                            console.log(data)
+                            // setFileList([...fileList, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
+                            setFileList(prev => [...prev, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
+                            console.log(fileList)
                         }
                     }
-
-                    else if (data.type == "ice-candidate") { 
-                        // received new ice candidate from backend, add to connection and try to use it
-                        console.log('ws ice-candidate')
-                        await pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    }
-
-                    else if (data.type == "error") {
-                        console.log(`ws server error: ${data.message}`)
-                    }
-
-                    else if (data.type == "remote-stats"){
-                        setRemoteStats(data)
-                    }
-
-                    else if (data.type == "recording-saved"){
-                        console.log('recording-saved')
-                        console.log(data)
-                        // setFileList([...fileList, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
-                        setFileList(prev => [...prev, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
-                        console.log(fileList)
-                    }
+                }
+                catch (error) {
+                    console.error(`error handling ws message: ${error}`)
+                    console.log(data)
                 }
             }
-            catch (error) {
-                console.error(`error handling ws message: ${error}`)
-                console.log(data)
+
+            ws.onerror = (event) => {
+                console.log('ws.onerror')
+                setWsStatus(ws.readyState)
+            }
+
+            ws.onclose = () => {
+                console.log('ws.onclose')
+                setWsStatus(ws.CLOSED)
+                if (heartbeatInterval) {
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = null;
+                }
+                teardown();
+
+                // if (wsRef.current !== ws) return;  // ignore stale sockets
+
+                // attempt reconnect after 5 seconds
+                setTimeout(() => {
+                    connectWs();
+                }, 5000);
             }
         }
-
-        ws.onerror = (event) => {
-            console.log('ws.onerror')
-            setWsStatus(ws.readyState)
-        }
-
-        ws.onclose = () => {
-            console.log('ws.onclose')
-            setWsStatus(ws.CLOSED)
-            if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = null;
-            }
-            teardown();
-
-            // if (wsRef.current !== ws) return;  // ignore stale sockets
-
-            // attempt reconnect after 5 seconds
-            setTimeout(() => {
-                connectWs();
-            }, 5000);
+        catch (error){
+            console.log(`error opening websocket: ${error}`)
         }
     }
 
@@ -141,7 +148,7 @@ export const AppContextProvider = ({ip, port, children}) => {
         pc.addTransceiver("video", {direction: "recvonly"});
         pc.addTransceiver("audio", {direction: "recvonly"});
 
-        pc.ontrack = (event) => {
+        pc.ontrack = async (event) => {
             console.log('pc.ontrack');
             const track = event.track;
             if (track.kind == 'video') {
@@ -153,7 +160,14 @@ export const AppContextProvider = ({ip, port, children}) => {
                 
                 // here
 
-                const audioContext = new AudioContext();
+                // const audioContext = new AudioContext();
+                let  audioContext = audioContextRef.current;
+
+                if (audioContext.state === "suspended") {
+                    await audioContext.resume();
+                    console.log("AudioContext resumed:", audioContext.state);
+                }
+
                 const source = audioContext.createMediaStreamSource(event.streams[0]);
                 const analyser = audioContext.createAnalyser();
                 analyserRef.current = analyser;
@@ -164,12 +178,12 @@ export const AppContextProvider = ({ip, port, children}) => {
                 const filterLow = audioContext.createBiquadFilter();
                 filterLow.type = "highpass";
                 filterLowRef.current = filterLow;
-                filterLow.frequency.value = lowerCutoff * 100;  // cutoff frequency
+                filterLow.frequency.value = lowerCutoff;  // cutoff frequency
 
                 const filterHigh = audioContext.createBiquadFilter();
                 filterHigh.type = "lowpass";
                 filterHighRef.current = filterHigh;
-                filterHigh.frequency.value = upperCutoff * 100;  // cutoff frequency
+                filterHigh.frequency.value = upperCutoff;  // cutoff frequency
 
                 source.connect(gainNode);
                 gainNode.connect(filterLow);
@@ -178,9 +192,10 @@ export const AppContextProvider = ({ip, port, children}) => {
                 analyser.connect(audioContext.destination)  // connects audio context to speakers
 
                 // to here
-
+                
                 setAudioStream(event.streams[0])
             }
+
         }
 
         pc.onicecandidate = (event) => {  // fires for every candidate as discovered, and a final time where candidate=null to signal end of gathering
@@ -277,6 +292,7 @@ export const AppContextProvider = ({ip, port, children}) => {
             upperCutoffState: [upperCutoff, setUpperCutoff],
             filenameState: [filename, setFilename],
             fileListState: [fileList, setFileList],
+            audioContextRef,
         }}>
             {children}
         </AppContext.Provider>

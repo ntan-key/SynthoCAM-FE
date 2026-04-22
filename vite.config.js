@@ -9,16 +9,14 @@ export default defineConfig({
   define: {
     global: {}
   },
-  // server: {
-  //   host: true,
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://192.168.0.131:8000',
-  //       ws: true,
-  //       changeOrigin: true,
-  //       secure: false,
-  //       rewrite: (path) => path.replace(/^\/api/, '')
-  //     }
-  //   }
-  // }
+  server: {
+    https: {
+      // key: fs.readFileSync('./certs/synthocam.local+4-key.pem'),
+      key: fs.readFileSync('./certs/192.168.0.131+1-key.pem'),
+      // cert: fs.readFileSync('./certs/synthocam.local+4.pem'),
+      cert: fs.readFileSync('./certs/192.168.0.131+1.pem'),
+    },
+    host: '0.0.0.0',
+    port: 5173,
+  }
 })

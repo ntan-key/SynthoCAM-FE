@@ -8,8 +8,10 @@ const Stats = () => {
     const [cpu, setCpu] = useState(60);
     const [storage, setStorage] = useState(125);
     const [totalStorage, setTotalStorage] = useState(255);
+    const [cameraStatus, setCameraStatus] = useState("disconnected");
+    const [microphoneStatus, setMicrophoneStatus] = useState("disconnected");
 
-    const { remoteStatsState } = useContext(AppContext);
+    const { ip, remoteStatsState } = useContext(AppContext);
     const [remoteStats, setRemoteStats] = remoteStatsState;
 
 
@@ -19,6 +21,8 @@ const Stats = () => {
             setCpu(remoteStats["cpu_usage"])
             setStorage(Math.round(remoteStats["storage_used"] / (10**9)*10)/10)
             setTotalStorage(Math.round(remoteStats["storage_total"] / (10**9)*10)/10)
+            setCameraStatus(remoteStats["camera_status"])
+            setMicrophoneStatus(remoteStats["microphone_status"])
         }
     }, [remoteStats]);
 
@@ -28,10 +32,12 @@ const Stats = () => {
             <div className="flex text-white text-xs text-left">
                 <ul>
                     <li><h1 className="font-bold text-sm">Remote Stats</h1></li>
-                    <li>IP: 192.168.0.131</li>
+                    <li>IP: {ip}</li>
                     <li>CPU Temp: {temperature} °C</li>
                     <li>CPU Usage: {cpu} %</li>
                     <li>Storage Usage: {storage}/{totalStorage} GB</li>
+                    <li>Camera Status: {cameraStatus}</li>
+                    <li>Microphone Status: {microphoneStatus}</li>
                 </ul>
             </div>
         </div>

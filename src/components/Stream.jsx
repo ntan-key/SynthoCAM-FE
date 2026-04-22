@@ -24,14 +24,15 @@ const Stream = () => {
 
 
     return (
-        <div className="border border-border rounded-xl h-full w-full flex flex-col flex-1 justify-center items-center">
-            <div ref={containerRef} className='w-full h-full relative'>
+        <div className="border border-border rounded-xl flex flex-col flex-1 min-h-0 overflow-hidden">
+            <div ref={containerRef} className='relative flex-1 min-h-0'>
                 <Stats></Stats>
                 <video
                         ref={videoRef}
                         autoPlay
                         playsInline
-                        className={`h-full w-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
+                        muted
+                        className={`w-full h-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
                     />   
                 <Toolbar fullScreen={fullScreen} setFullScreen={setFullScreen} onFullScreen={onFullScreen}></Toolbar>
             </div>     

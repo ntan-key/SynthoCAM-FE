@@ -29,7 +29,7 @@ const FilenameInput = () => {
 
 
     return (
-        <div className="flex border border-border w-full rounded-sm p-1 text-white font-bold lext-lg">
+        <div className="flex border border-border w-full rounded-sm p-1 text-white font-bold text-lg">
             <input ref={inputRef} value={filename} type='text' placeholder='Video Title' className="w-content outline-none overflow-hidden" onChange={(e) => setFilename(e.target.value)}></input>
             <span className="text-gray-400">.mp4</span>
             <span ref={measureRef} className="" style={{visibility: "hidden"}}></span>

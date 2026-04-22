@@ -1,31 +1,32 @@
-import Navbar from "./components/Navbar"
-import FileManager from "./components/FileManager";
-import Stream from "./components/Stream";
-import FilenameInput from "./components/FilenameInput";
-import AudioSpectrum from "./components/AudioSpectrum";
-
 import { AppContextProvider } from "./components/AppContext";
+import AppContainer from "./components/AppContainer";
 
 
-function App() {
+function App() {  
 
-  const RPI_IP = '192.168.0.146';
+  const RPI_IP = '192.168.0.131';  // KEY
+  // const RPI_IP = '192.168.0.146';  // Home
+  // const RPI_IP = '10.42.0.1';  // Static
   const WEBSOCKET_PORT = 8000;  // 5173
+
+
+  // document.addEventListener("click", async () => {
+  //     const ctx = audioContextRef.current;
+  //     if (ctx.state === "suspended") {
+  //         await ctx.resume();
+  //     }
+  // });
+
+  // document.addEventListener("touchstart", async () => {
+  //     if (audioContextRef.current.state === "suspended") {
+  //         await audioContextRef.current.resume();
+  //     }
+  // }, { once: true });
 
 
   return (
     <AppContextProvider ip={RPI_IP} port={WEBSOCKET_PORT}>
-      <div className="h-screen min-w-screen flex flex-col bg-linear-to-r from-bg-start via-bg-mid to-bg-stop">
-        <Navbar></Navbar>
-        <div className='flex flex-1 overflow-hidden flex-wrap justify-center h-full'>
-          <div className="flex flex-col flex-1 items-center justify-center gap-1 p-5 md:h-full">
-            <Stream></Stream>
-            <FilenameInput></FilenameInput>
-            <AudioSpectrum></AudioSpectrum>
-          </div>
-          <FileManager></FileManager>
-        </div> 
-      </div>
+      <AppContainer></AppContainer>
     </AppContextProvider>
   )
 }

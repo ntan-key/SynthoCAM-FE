@@ -11,7 +11,8 @@ const FileManager = () => {
 
 
     const get_capture_list = async() => {
-        fetch(`http://${ip}:${port}/capture/list`)
+        // fetch(`https://${ip}:${port}/capture/list`)
+        fetch(`/api/capture/list`)
         .then((res) => {
             if (!res.ok) throw new Error("Network response was not ok");
             return res.json();
@@ -27,7 +28,8 @@ const FileManager = () => {
 
 
     const send_delete = async(title) => {
-        const res = await fetch(`http://${ip}:${port}/capture/delete`, {
+        const res = await fetch(`/api/capture/delete`, {
+        // const res = await fetch(`https://${ip}:${port}/capture/delete`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -53,11 +55,9 @@ const FileManager = () => {
     }, [wsStatus])
 
 
-    useEffect(() => {console.log(fileList)}, [fileList])
-
-
     return (
-            <div className='flex flex-col w-full md:w-70 border-x border-border p-5 overflow-y-scroll h-full gap-3'>
+            <div className='flex flex-col w-full landscape:w-1/5 shrink-0 portrait:h-[35dvh] landscape:h-full border-x border-border p-5 overflow-y-auto gap-3'>
+            {/* <div className='flex flex-col w-full md:w-1/5 shrink-0 h-[35dvh] md:h-auto border-x border-border p-5 overflow-y-auto gap-3'> */}
                 {fileList.map((item, i) => (
                     <VideoTile key={i} title={item.title} onDelete={send_delete} thumbnail={item.thumbnail}/>
                 ))}

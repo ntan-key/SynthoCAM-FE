@@ -32,7 +32,8 @@ const VideoTile = ({title, onDelete, thumbnail}) => {
 
 
     const send_download = async() => {
-        window.location.href = `http://${ip}:${port}/capture/download?title=${encodeURIComponent(title)}`;
+        window.location.href = `/api/capture/download?title=${encodeURIComponent(title)}`;
+        // window.location.href = `https://${ip}:${port}/capture/download?title=${encodeURIComponent(title)}`;
     }
 
 
