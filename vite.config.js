@@ -11,10 +11,8 @@ export default defineConfig({
   },
   server: {
     https: {
-      // key: fs.readFileSync('./certs/synthocam.local+4-key.pem'),
-      key: fs.readFileSync('./certs/192.168.0.131+1-key.pem'),
-      // cert: fs.readFileSync('./certs/synthocam.local+4.pem'),
-      cert: fs.readFileSync('./certs/192.168.0.131+1.pem'),
+      key: fs.readFileSync('./certs/synthocam.local+1-key.pem'),
+      cert: fs.readFileSync('./certs/synthocam.local+1.pem'),
     },
     host: '0.0.0.0',
     port: 5173,
