@@ -115,14 +115,30 @@ const MIN = 20;
 const MAX = 20000;
 
 
-const toPercent = (value) =>
-    ((value - MIN) / (MAX - MIN)) * 100;
+//const toPercent = (value) =>
+//    ((value - MIN) / (MAX - MIN)) * 100;
 
+// To map slider to FFt graph 
+
+const percentToFreq = (percent) => {
+  const t = Number(percent) / 100;
+  const logMin = Math.log10(MIN);
+  const logMax = Math.log10(MAX);
+  return Math.round(Math.pow(10, logMin + t * (logMax - logMin)));
+};
+
+const freqToPercent = (freq) => {
+  const clamped = Math.min(Math.max(Number(freq), MIN), MAX);
+  const logMin = Math.log10(MIN);
+  const logMax = Math.log10(MAX);
+  const logValue = Math.log10(clamped);
+  return ((logValue - logMin) / (logMax - logMin)) * 100;
+};
 
 const clamp = (n, min, max) => {
-    let num = Number(n)
-    if (!Number.isFinite(num)) return 20;
-    return Math.min(Math.max(num, min), max);
+  const num = Number(n);
+  if (!Number.isFinite(num)) return min;
+  return Math.min(Math.max(num, min), max);
 };
 
 
@@ -133,9 +149,18 @@ const Slider = () => {
 
 
   const lowerChange = (e) => {
+
+    // Origional 
+    //let value = clamp(e.target.value, MIN, upperCutoff - 1);
+    //setLowerCutoff(value);
+
+    // trying to map slider position to graph
+    const freq = percentToFreq(e.target.value);
+    const value = clamp(freq, MIN, upperCutoff - 1);
+    const percent = Number(e.target.value);
+    setLowerCutoff(value);    
     console.log(`lower cutoff: ${e.target.value}`);
-    let value = clamp(e.target.value, MIN, upperCutoff - 1);
-    setLowerCutoff(value);
+    console.log({ percent, freq });
 
     // e.target.value = Math.min(e.target.value, e.target.parentNode.childNodes[2].value - 1);
     // var value = (100 / ( parseInt(e.target.max) - parseInt(e.target.min) )) * parseInt(e.target.value) - (100 / (parseInt(e.target.max) - parseInt(e.target.min) )) * parseInt(e.target.min);
@@ -152,8 +177,16 @@ const Slider = () => {
 
   const upperChange = (e) => {
     console.log(`upper cutoff: ${e.target.value}`);
-    let value = clamp(e.target.value, lowerCutoff + 1, MAX);
+    
+    // Origional 
+    //let value = clamp(e.target.value, lowerCutoff + 1, MAX);
+    //setUpperCutoff(value);
+
+    // trying to map position of slider to graph
+    const freq = percentToFreq(e.target.value);
+    const value = clamp(freq, lowerCutoff + 1, MAX);
     setUpperCutoff(value);
+
     // e.target.value = Math.max(e.target.value, e.target.parentNode.childNodes[1].value - (-1));
     // var value = (100 / ( parseInt(e.target.max) - parseInt(e.target.min) )) * parseInt(e.target.value) - (100 / ( parseInt(e.target.max) - parseInt(e.target.min) )) * parseInt(e.target.min);
 
@@ -207,8 +240,10 @@ const Slider = () => {
 
 
   useEffect(() => {
-    const left = toPercent(lowerCutoff);
-    const right = toPercent(upperCutoff);
+    //const left = toPercent(lowerCutoff);
+    //const right = toPercent(upperCutoff);
+    const left = freqToPercent(lowerCutoff);
+    const right = freqToPercent(upperCutoff);
 
     const valLeft = document.querySelector('#RangeSlider .range-slider-val-left');
     const valRight = document.querySelector('#RangeSlider .range-slider-val-right');
@@ -263,8 +298,8 @@ const Slider = () => {
           </div>
         </div>
 
-        <input type="range" className="range-slider-input-left" min={MIN} max={MAX} step={1} value={lowerCutoff} onChange={lowerChange}/>
-        <input type="range" className="range-slider-input-right" min={MIN} max={MAX} step={1} value={upperCutoff} onChange={upperChange}/>
+        <input type="range" className="range-slider-input-left" min={0} max={100} step={0.1} value={freqToPercent(lowerCutoff)} onChange={lowerChange}/>
+        <input type="range" className="range-slider-input-right" min={0} max={100} step={0.1} value={freqToPercent(upperCutoff)} onChange={upperChange}/>
       </div>
     </div>
   );

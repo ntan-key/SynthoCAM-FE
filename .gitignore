@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 certs
+
+*.jpg
+*.mp4

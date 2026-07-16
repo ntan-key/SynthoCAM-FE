@@ -1,15 +1,14 @@
 import { createContext, useState, useRef, useEffect } from "react";
 
-
 export const AppContext = createContext(null);
 
-export const AppContextProvider = ({ip, port, children}) => {
+export const AppContextProvider = ({ ip, port, children }) => {
     const wsRef = useRef(null);
     const [wsStatus, setWsStatus] = useState(3);
-    
+
     const pcRef = useRef(null);
     const [pcStatus, setPcStatus] = useState('disconnected');
-    
+
     const videoRef = useRef(null);
     const audioRef = useRef(null);
     const [audioStream, setAudioStream] = useState(null);
@@ -26,7 +25,9 @@ export const AppContextProvider = ({ip, port, children}) => {
     const gainRef = useRef(null);
     const filterLowRef = useRef(null);
     const filterHighRef = useRef(null);
-    const audioContextRef = useRef(new AudioContext());
+    const filterHigh2Ref = useRef(null);
+    const sourceRef = useRef(null);
+    const audioContextRef = useRef(null);
 
     const [filename, setFilename] = useState('');
     const [fileList, setFileList] = useState([]);
@@ -36,13 +37,43 @@ export const AppContextProvider = ({ip, port, children}) => {
         { urls: 'stun:stun1.l.google.com:19302' }
     ];
 
-    
+    const cleanupAudioGraph = () => {
+        try { sourceRef.current?.disconnect(); } catch {}
+        try { gainRef.current?.disconnect(); } catch {}
+        try { filterLowRef.current?.disconnect(); } catch {}
+        try { filterHighRef.current?.disconnect(); } catch {}
+        try { analyserRef.current?.disconnect(); } catch {}
+
+        sourceRef.current = null;
+        gainRef.current = null;
+        filterLowRef.current = null;
+        filterHighRef.current = null;
+        analyserRef.current = null;
+    };
+
+    const ensureAudioContext = async () => {
+        let audioContext = audioContextRef.current;
+
+        if (!audioContext || audioContext.state === "closed") {
+            audioContext = new AudioContext();
+            audioContextRef.current = audioContext;
+            audioContext.onstatechange = () => {
+                console.log("AudioContext state:", audioContext.state);
+            };
+        }
+
+        if (audioContext.state === "suspended") {
+            await audioContext.resume();
+        }
+
+        return audioContext;
+    };
+
     const connectWs = () => {
         console.log('attempting to connect to websocket...')
         let heartbeatInterval = null;
-        try{
+        try {
             console.log(window.location.host)
-            // const ws = new WebSocket(`wss://${ip}:${port}/ws`);
             const ws = new WebSocket(`wss://${window.location.host}/ws`);
             wsRef.current = ws;
             setWsStatus(ws.readyState)
@@ -53,9 +84,8 @@ export const AppContextProvider = ({ip, port, children}) => {
 
                 setTimeout(() => connectPc(), 0)
 
-                // heartbeat every 5 seconds
                 heartbeatInterval = setInterval(() => {
-                    if (ws.readyState == WebSocket.OPEN){
+                    if (ws.readyState == WebSocket.OPEN) {
                         ws.send(JSON.stringify({
                             type: "heartbeat"
                         }))
@@ -63,18 +93,15 @@ export const AppContextProvider = ({ip, port, children}) => {
                 }, 5000)
             }
 
-            ws.onmessage = async(event) => {
+            ws.onmessage = async (event) => {
                 setWsStatus(ws.readyState)
                 const data = JSON.parse(event.data)
 
-                try{
-                    // heartbeat response
-                    if (data.type !== "heartbeat-response"){
-
+                try {
+                    if (data.type !== "heartbeat-response") {
                         if (data.type == "answer") {
-                            // answer from offer sent to create peer connection
                             console.log('ws answer')
-                            if (pcRef.current.signalingState == 'have-local-offer'){  // check valid state, and not react re-render
+                            if (pcRef.current.signalingState == 'have-local-offer') {
                                 console.log(pcRef.current.signalingState)
                                 await pcRef.current.setRemoteDescription(new RTCSessionDescription({
                                     type: data.type,
@@ -83,8 +110,7 @@ export const AppContextProvider = ({ip, port, children}) => {
                             }
                         }
 
-                        else if (data.type == "ice-candidate") { 
-                            // received new ice candidate from backend, add to connection and try to use it
+                        else if (data.type == "ice-candidate") {
                             console.log('ws ice-candidate')
                             await pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
                         }
@@ -93,15 +119,14 @@ export const AppContextProvider = ({ip, port, children}) => {
                             console.log(`ws server error: ${data.message}`)
                         }
 
-                        else if (data.type == "remote-stats"){
+                        else if (data.type == "remote-stats") {
                             setRemoteStats(data)
                         }
 
-                        else if (data.type == "recording-saved"){
+                        else if (data.type == "recording-saved") {
                             console.log('recording-saved')
                             console.log(data)
-                            // setFileList([...fileList, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
-                            setFileList(prev => [...prev, {"title": data["filename"], "thumbnail": data["thumbnail"]}])
+                            setFileList(prev => [...prev, { "title": data["filename"], "thumbnail": data["thumbnail"] }])
                             console.log(fileList)
                         }
                     }
@@ -112,7 +137,7 @@ export const AppContextProvider = ({ip, port, children}) => {
                 }
             }
 
-            ws.onerror = (event) => {
+            ws.onerror = () => {
                 console.log('ws.onerror')
                 setWsStatus(ws.readyState)
             }
@@ -126,83 +151,145 @@ export const AppContextProvider = ({ip, port, children}) => {
                 }
                 teardown();
 
-                // if (wsRef.current !== ws) return;  // ignore stale sockets
-
-                // attempt reconnect after 5 seconds
                 setTimeout(() => {
                     connectWs();
                 }, 5000);
             }
         }
-        catch (error){
+        catch (error) {
             console.log(`error opening websocket: ${error}`)
         }
     }
 
-
-    const connectPc = async() => {
+    const connectPc = async () => {
         console.log('attempting to connect stream via peer connection...')
         const pc = new RTCPeerConnection({ "iceServers": iceServers, "iceTransportPolicy": "all" });
         pcRef.current = pc;
 
-        pc.addTransceiver("video", {direction: "recvonly"});
-        pc.addTransceiver("audio", {direction: "recvonly"});
+        const statsInterval = setInterval(async () => {
+            try {
+                const stats = await pc.getStats();
+
+                stats.forEach((report) => {
+                    if (report.type === "inbound-rtp" && report.kind === "video") {
+                        console.log("WEBRTC VIDEO", {
+                            jitter: report.jitter,
+                            packetsLost: report.packetsLost,
+                            framesPerSecond: report.framesPerSecond,
+                            bytesReceived: report.bytesReceived,
+                            framesDecoded: report.framesDecoded,
+                            framesDropped: report.framesDropped,
+                            jitterBufferDelay: report.jitterBufferDelay,
+                            jitterBufferEmittedCount: report.jitterBufferEmittedCount,
+                            totalDecodeTime: report.totalDecodeTime,
+                            decoderImplementation: report.decoderImplementation,
+                        });
+                    }
+
+                    if (report.type === "track" && report.kind === "video") {
+                        console.log("WEBRTC TRACK", {
+                            framesReceived: report.framesReceived,
+                            framesDecoded: report.framesDecoded,
+                            framesDropped: report.framesDropped,
+                            jitterBufferDelay: report.jitterBufferDelay,
+                            jitterBufferEmittedCount: report.jitterBufferEmittedCount,
+                        });
+                    }
+
+                    if (report.type === "candidate-pair" && report.state === "succeeded") {
+                        console.log("WEBRTC NET", {
+                            rtt: report.currentRoundTripTime,
+                            availableIncomingBitrate: report.availableIncomingBitrate,
+                        });
+                    }
+                });
+            } catch (error) {
+                console.log("getStats error", error);
+            }
+        }, 1000);
+
+        pc.addTransceiver("video", { direction: "recvonly" });
+        pc.addTransceiver("audio", { direction: "recvonly" });
 
         pc.ontrack = async (event) => {
             console.log('pc.ontrack');
             const track = event.track;
+
             if (track.kind == 'video') {
                 console.log('pc.video track added');
                 videoRef.current.srcObject = event.streams[0];
-                videoRef.current.muted = true;  // ensure sound is coming from audio stream not video stream
+                videoRef.current.muted = true;
             } else if (track.kind == 'audio') {
                 console.log('pc.audio track added');
-                
-                // here
 
-                // const audioContext = new AudioContext();
-                let  audioContext = audioContextRef.current;
-
-                if (audioContext.state === "suspended") {
-                    await audioContext.resume();
-                    console.log("AudioContext resumed:", audioContext.state);
-                }
+                cleanupAudioGraph();
+                const audioContext = await ensureAudioContext();
 
                 const source = audioContext.createMediaStreamSource(event.streams[0]);
+                sourceRef.current = source;
+
                 const analyser = audioContext.createAnalyser();
                 analyserRef.current = analyser;
+
                 const gainNode = audioContext.createGain();
-                gainNode.gain.value = volume / 100;
+                //gainNode.gain.value = volume / 100;  /// origional
+                gainNode.gain.value = volume / 100 * 3.0;     // added gain - a slider may be good nextsay 0% to 200%
                 gainRef.current = gainNode;
 
                 const filterLow = audioContext.createBiquadFilter();
                 filterLow.type = "highpass";
+                filterLow.frequency.value = lowerCutoff;
                 filterLowRef.current = filterLow;
-                filterLow.frequency.value = lowerCutoff;  // cutoff frequency
 
                 const filterHigh = audioContext.createBiquadFilter();
                 filterHigh.type = "lowpass";
+                filterHigh.frequency.value = upperCutoff;
                 filterHighRef.current = filterHigh;
-                filterHigh.frequency.value = upperCutoff;  // cutoff frequency
 
-                source.connect(gainNode);
-                gainNode.connect(filterLow);
-                filterLow.connect(filterHigh);
-                filterHigh.connect(analyser);
-                analyser.connect(audioContext.destination)  // connects audio context to speakers
+                const filterHigh2 = audioContext.createBiquadFilter();
+                filterHigh2.type = "lowpass";
+                filterHigh2.frequency.value = upperCutoff;
+                filterHigh2Ref.current = filterHigh2;
 
-                // to here
+                // try to remove video /constant frequeny noise(s)
+                const notch = audioContext.createBiquadFilter();
+                notch.type = "notch";
+                notch.frequency.value = 8000;
+                notch.Q.value = 2;
+
+                // try to remove video /constant frequeny noise(s) - PAL video horizontal scan freq
+                const notch2 = audioContext.createBiquadFilter();
+                notch2.type = "notch";
+                notch2.frequency.value = 15625;
+                notch2.Q.value = 3;
                 
-                setAudioStream(event.streams[0])
-            }
+                // Expander (soft noise gate) to reduce realatively backgound to signal noise... (WIP)
+                const compressor = audioContext.createDynamicsCompressor();
+                compressor.threshold.value = -50;
+                compressor.knee.value = 20;
+                compressor.ratio.value = 4;
+                compressor.attack.value = 0.003;
+                compressor.release.value = 0.25;
 
+                source.connect(filterLow);
+                filterLow.connect(filterHigh);
+                filterHigh.connect(filterHigh2); // added for sharper cuttoff 
+                //filterHigh2.connect(analyser);
+                filterHigh2.connect(notch);      // added to remove ~8Khz
+                notch.connect(notch2);      // added to remove ~8Khz
+                notch2.connect(gainNode);
+                //compressor.connect(gainNode);
+                gainNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                setAudioStream(event.streams[0]);
+            }
         }
 
-        pc.onicecandidate = (event) => {  // fires for every candidate as discovered, and a final time where candidate=null to signal end of gathering
-        // Every time I discover a new way for someone to reach me, send info to other peer so they can try connecting to it
+        pc.onicecandidate = (event) => {
             console.log('pc.onicecandidate');
-            if (event.candidate && wsRef.current) {  // don't fire on final candidate=null, make sure websocket is open
-                if (wsRef.current.readyState == WebSocket.OPEN){
+            if (event.candidate && wsRef.current) {
+                if (wsRef.current.readyState == WebSocket.OPEN) {
                     wsRef.current.send(JSON.stringify({
                         type: 'ice-candidate',
                         candidate: event.candidate
@@ -215,6 +302,7 @@ export const AppContextProvider = ({ip, port, children}) => {
             console.log('pc.onconnectionstatechange')
             console.log(`pc.state: ${pc.connectionState}`)
             setPcStatus(pc.connectionState);
+
             if (pc.connectionState == "checking") {
                 console.log('pc.checking - testing candidates')
             } else if (pc.connectionState == "connected") {
@@ -224,26 +312,35 @@ export const AppContextProvider = ({ip, port, children}) => {
             } else if (pc.connectionState == "failed") {
                 console.log('pc.connection failed')
             }
+
+            if (
+                pc.connectionState == "closed" ||
+                pc.connectionState == "failed" ||
+                pc.connectionState == "disconnected"
+            ) {
+                clearInterval(statsInterval);
+            }
         }
 
-        try{
-            // browser sends an offer first, backend processes the offer
+        try {
             console.log('sending offer')
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
 
             wsRef.current.send(JSON.stringify({
-                    type: 'offer',
-                    sdp: offer.sdp
-                }));
+                type: 'offer',
+                sdp: offer.sdp
+            }));
         } catch (error) {
             console.log(`error sending offer: ${error}`)
         }
     }
 
-
     const teardown = () => {
-        console.log('ws pc teardown')
+        console.log('ws pc teardown');
+
+        cleanupAudioGraph();
+
         if (wsRef.current) {
             wsRef.current.close();
             wsRef.current = null;
@@ -255,24 +352,21 @@ export const AppContextProvider = ({ip, port, children}) => {
         if (videoRef.current) {
             videoRef.current.srcObject = null;
         }
-
         if (audioRef.current) {
             audioRef.current.srcObject = null;
         }
-    }
-
+    };
 
     useEffect(() => {
         connectWs();
         return () => {
             teardown()
         }
-    },[ip, port]);
-
+    }, [ip, port]);
 
     return (
         <AppContext.Provider value={{
-            ip, 
+            ip,
             port,
             wsRef,
             wsStatusState: [wsStatus, setWsStatus],
