@@ -84,16 +84,16 @@ const Toolbar = ({fullScreen, setFullScreen, onFullScreen}) => {
         <div className='w-full absolute inset-0 flex items-end justify-between p-2'>
             <div className="h-12 w-full flex items-center gap-5">
                 <button onClick={recordButtonPress}>
-                    <img src={record? Stop : Record} alt="Record button" className='h-8'/>
+                    <img src={record? Stop : Record} alt="Record button" className='h-15'/>
                 </button>
                 
                 <VolumeButton></VolumeButton>
                 
-                <div className='text-white'>{time}</div>
+                <div className='text-white text-xl'>{time}</div>
             </div>
             
             <button onClick={onFullScreen}>
-                <img src={fullScreen? Minimise: Maximise} alt="Max Min button" className='h-8'/>
+                <img src={fullScreen? Minimise: Maximise} alt="Max Min button" className='h-15'/>
             </button>
         </div>
     );

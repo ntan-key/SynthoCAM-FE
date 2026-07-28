@@ -22,8 +22,11 @@ const Stream = () => {
         setFullScreen(!fullScreen);
     }
 
+
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Tempory to see where lag is coming form  - to be removed. 
+
+
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
@@ -70,6 +73,7 @@ const Stream = () => {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // End of Temp
 
+    
     return (
         <div className="border border-border rounded-xl flex flex-col flex-1 min-h-0 overflow-hidden">
             <div ref={containerRef} className='relative flex-1 min-h-0'>
@@ -79,8 +83,8 @@ const Stream = () => {
                         autoPlay
                         playsInline
                         muted
-                        //className={`w-full h-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
-                        className={`w-full h-full object-cover opacity-100 rounded-xl`}  // Temp to test impact on lag
+                        className={`w-full h-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
+                        // className={`w-full h-full object-cover opacity-100 rounded-xl`}  // Temp to test impact on lag
                     />   
                 <Toolbar fullScreen={fullScreen} setFullScreen={setFullScreen} onFullScreen={onFullScreen}></Toolbar>
             </div>     

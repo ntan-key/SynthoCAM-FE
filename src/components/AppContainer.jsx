@@ -26,7 +26,7 @@ const AppContainer = () => {
             <div className="flex flex-1 flex-col min-h-0 gap-2 p-5">
                 <Stream></Stream>
                 <FilenameInput></FilenameInput>
-                <AudioSpectrum></AudioSpectrum>
+                {/* <AudioSpectrum></AudioSpectrum> */}
             </div>
             <FileManager></FileManager>
             </div> 

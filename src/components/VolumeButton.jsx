@@ -36,7 +36,7 @@ const VolumeButton = () => {
     return (
         <div className='volume-container flex'>
             <button onClick={soundButtonPress}>
-                <img src={mute? Mute : Volume} alt="Volume button" className='h-8'/>
+                <img src={mute? Mute : Volume} alt="Volume button" className='h-15'/>
             </button>
             <input type="range" className='volume-slider' value={volume} onChange={volumeChange} min={0} max={100}/>
         </div>

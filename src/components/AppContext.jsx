@@ -23,6 +23,7 @@ export const AppContextProvider = ({ ip, port, children }) => {
     const [upperCutoff, setUpperCutoff] = useState(20000);
     const analyserRef = useRef(null);
     const gainRef = useRef(null);
+    const [gain, setGain] = useState(null);
     const filterLowRef = useRef(null);
     const filterHighRef = useRef(null);
     const filterHigh2Ref = useRef(null);
@@ -74,7 +75,7 @@ export const AppContextProvider = ({ ip, port, children }) => {
         let heartbeatInterval = null;
         try {
             console.log(window.location.host)
-            const ws = new WebSocket(`wss://${window.location.host}/ws`);
+            const ws = new WebSocket(`wss://${'192.168.0.61'}/ws`);
             wsRef.current = ws;
             setWsStatus(ws.readyState)
 
@@ -232,8 +233,8 @@ export const AppContextProvider = ({ ip, port, children }) => {
                 analyserRef.current = analyser;
 
                 const gainNode = audioContext.createGain();
-                //gainNode.gain.value = volume / 100;  /// origional
-                gainNode.gain.value = volume / 100 * 3.0;     // added gain - a slider may be good nextsay 0% to 200%
+                //gainNode.gain.value = volume / 100;  /// original
+                gainNode.gain.value = volume / 100 * 3.0;     // added gain - a slider may be good next say 0% to 200%
                 gainRef.current = gainNode;
 
                 const filterLow = audioContext.createBiquadFilter();
@@ -377,6 +378,7 @@ export const AppContextProvider = ({ ip, port, children }) => {
             remoteStatsState: [remoteStats, setRemoteStats],
             analyserRef,
             gainRef,
+            // gainState: [gain, setGain],
             filterLowRef,
             filterHighRef,
             muteState: [mute, setMute],

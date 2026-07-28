@@ -2,6 +2,7 @@ import { AppContext } from './AppContext';
 import { useContext, useEffect, useState, useRef } from 'react';
 import Switch from './Switch';
 import Slider from './Slider';
+import { Knob } from 'primereact/knob';
 
 
 const AudioSpectrum = () => {
@@ -12,6 +13,7 @@ const AudioSpectrum = () => {
     const canvasRef = useRef(null);
     const [ timeFreq, setTimeFreq] = useState(true);
     const [ dominantFreq, setDominantFreq] = useState(0);
+    const [ gainValue, setGainValue] = useState(0);
 
     const xAxis = [20, 50, 100, 200, 500, 1000, 2000, 5000, 7000, 8000, 10000, 20000];
     const yAxis = [0, -20, -40, -60, -80, -100];
@@ -261,6 +263,10 @@ const AudioSpectrum = () => {
                     </div>
                 </div>
                 <Slider></Slider>
+                <div className='flex flex-col items-center'>
+                    <Knob value={gainValue} onChange={(e) => setGainValue(e.value)} min={0} max={200}/>
+                    <div className='text-white'>Gain</div>
+                </div>
             </div>
         </div>
     )
