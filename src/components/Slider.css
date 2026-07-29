@@ -18,10 +18,10 @@
 .range-slider > div {
     position: absolute;
     display: flex;
-	align-items: center;
-	left: 13px;
-	right: 15px;
-	height: var(--range-slider-common-height);
+    align-items: center;
+    left: 0;
+    right: 0;
+    height: var(--range-slider-common-height);
 }
 
 .range-slider > div > .range-slider-val-left, 

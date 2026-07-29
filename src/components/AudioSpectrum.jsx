@@ -12,35 +12,34 @@ const AudioSpectrum = () => {
     const canvasRef = useRef(null);
     const [ timeFreq, setTimeFreq] = useState(true);
     const [ dominantFreq, setDominantFreq] = useState(0);
+    const [ gainValue, setGainValue] = useState(0);
 
-    const xAxis = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+    const xAxis = [20, 50, 100, 200, 500, 1000, 2000, 5000, 7000, 8000, 10000, 20000];
     const yAxis = [0, -20, -40, -60, -80, -100];
 
 
-    const getLogPositionPercent = (freq, sampleRate = 48000) => {
-        // For x axis scaling
-        const nyquist = sampleRate / 2;
-        const minFreq = 20;
+    // update to try to map fft to slider position... 
+    const MIN_FREQ = 20;
+    const MAX_FREQ = 20000;
 
-        const logMin = Math.log10(minFreq);
-        const logMax = Math.log10(nyquist);
-        const logFreq = Math.log10(freq);
+    const getLogPositionPercent = (freq) => {
+        const clamped = Math.min(Math.max(freq, MIN_FREQ), MAX_FREQ);
+        const logMin = Math.log10(MIN_FREQ);
+        const logMax = Math.log10(MAX_FREQ);
+        const logFreq = Math.log10(clamped);
 
         return ((logFreq - logMin) / (logMax - logMin)) * 100;
     };
 
-
-    const getLogPosition = (freq, width, sampleRate = 48000) => {
-        // For bars position
-        const nyquist = sampleRate / 2;
-        const minFreq = 20;
-
-        const logMin = Math.log10(minFreq);
-        const logMax = Math.log10(nyquist);
-        const logFreq = Math.log10(freq);
+    const getLogPosition = (freq, width) => {
+        const clamped = Math.min(Math.max(freq, MIN_FREQ), MAX_FREQ);
+        const logMin = Math.log10(MIN_FREQ);
+        const logMax = Math.log10(MAX_FREQ);
+        const logFreq = Math.log10(clamped);
 
         return ((logFreq - logMin) / (logMax - logMin)) * width;
     };
+
 
 
     useEffect(() => { 
@@ -54,18 +53,18 @@ const AudioSpectrum = () => {
 
             // Frequency
             const sampleRate = analyserRef.current.context.sampleRate;
-            const nyquist = sampleRate / 2;
             const fftSize = analyserRef.current.fftSize;
             const minFreq = 20;
+            const maxFreq = 20000;
             const logMin = Math.log10(minFreq);
-            const logMax = Math.log10(nyquist);
+            const logMax = Math.log10(maxFreq);
             const numBands = 100;
             const bandEdges = [];
 
             for (let i = 0; i <= numBands; i++) {
                 const t = i / numBands;
                 const freq = Math.pow(10, logMin + t * (logMax - logMin));
-                bandEdges.push(freq);
+                bandEdges.push(Math.min(freq, maxFreq));
             }
 
             const freqToBin = (freq) => {
@@ -167,7 +166,8 @@ const AudioSpectrum = () => {
                         // }
                         for (let s = 0; s < samples; s++) {
                             const t = s / (samples - 1);
-                            const freq = startFreq * Math.pow(endFreq / startFreq, t);
+                            //const freq = startFreq * Math.pow(endFreq / startFreq, t);
+                            const freq = Math.min(startFreq * Math.pow(endFreq / startFreq, t), maxFreq);
 
                             const bin = Math.floor((freq / sampleRate) * fftSize);
 
