@@ -12,10 +12,10 @@ const AppContainer = () => {
     const { audioContextRef } = useContext(AppContext);
 
     const unlockAudio = async () => {
-        const ctx = audioContextRef.current;
-        if (ctx?.state === "suspended") {
-            await ctx.resume();
-        }
+        // const ctx = audioContextRef.current;
+        // if (ctx?.state === "suspended") {
+        //     await ctx.resume();
+        // }
     };
 
     return (

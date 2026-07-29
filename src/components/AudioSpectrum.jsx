@@ -2,7 +2,6 @@ import { AppContext } from './AppContext';
 import { useContext, useEffect, useState, useRef } from 'react';
 import Switch from './Switch';
 import Slider from './Slider';
-import { Knob } from 'primereact/knob';
 
 
 const AudioSpectrum = () => {
@@ -263,10 +262,6 @@ const AudioSpectrum = () => {
                     </div>
                 </div>
                 <Slider></Slider>
-                <div className='flex flex-col items-center'>
-                    <Knob value={gainValue} onChange={(e) => setGainValue(e.value)} min={0} max={200}/>
-                    <div className='text-white'>Gain</div>
-                </div>
             </div>
         </div>
     )

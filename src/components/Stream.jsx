@@ -75,7 +75,7 @@ const Stream = () => {
 
     
     return (
-        <div className="border border-border rounded-xl flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div className="border border-border rounded-xl flex flex-col flex-1 min-h-100 overflow-hidden">
             <div ref={containerRef} className='relative flex-1 min-h-0'>
                 <Stats></Stats>
                 <video
