@@ -75,7 +75,8 @@ export const AppContextProvider = ({ ip, port, children }) => {
         let heartbeatInterval = null;
         try {
             console.log(window.location.host)
-            const ws = new WebSocket(`wss://${'192.168.0.61'}/ws`);
+            // const ws = new WebSocket(`wss://${'192.168.0.61'}/ws`);
+            const ws = new WebSocket(`wss://${window.location.host}/ws`);
             wsRef.current = ws;
             setWsStatus(ws.readyState)
 
