@@ -56,7 +56,7 @@ const FileManager = () => {
 
 
     return (
-            <div className='flex flex-col w-full landscape:w-1/5 shrink-0 portrait:h-[35dvh] landscape:h-full border-x border-border p-5 overflow-y-auto gap-3'>
+            <div className='flex flex-col w-full landscape:w-1/5 shrink-0 portrait:h-[35dvh] landscape:h-full p-3 border-x border-border overflow-y-auto gap-3'>
             {/* <div className='flex flex-col w-full md:w-1/5 shrink-0 h-[35dvh] md:h-auto border-x border-border p-5 overflow-y-auto gap-3'> */}
                 {fileList.map((item, i) => (
                     <VideoTile key={i} title={item.title} onDelete={send_delete} thumbnail={item.thumbnail}/>

@@ -232,36 +232,39 @@ const AudioSpectrum = () => {
 
 
     return (
-        <div className='flex flex-col gap-10 w-full'>
-            <div className="relative w-full flex-1 min-h-0 rounded-lg flex flex-col gap-5">
-                <div className='absolute top-2 right-2 z-10'>
-                    <Switch setTimeFreq={setTimeFreq}></Switch>
-                </div>
-                
-                <div className="w-full flex flex-col">
-                    <div className="relative w-full flex-1 border border-border rounded-lg">
-                        <canvas ref={canvasRef} className="w-full h-full rounded-lg" />
-                        <div className={`absolute top-2 left-2 text-white text-sm bg-black/50 px-2 py-1 rounded ${timeFreq? "invisible" : ""}`}>
-                            {Math.round(dominantFreq)} Hz
-                        </div>
+        <div className="relative w-full shrink-0 h-50 rounded-lg flex flex-col gap-5">
+            <div className='absolute top-2 right-2 z-10'>
+                <Switch setTimeFreq={setTimeFreq}></Switch>
+            </div>
+            
+            <div className="min-h-0 flex-1 flex flex-col">
+                <div className="relative min-h-0 min-w-0 overflow-hidden flex-1 border border-border rounded-lg">
+                    <canvas ref={canvasRef} className="w-full h-full block rounded-lg" />
+                    <div className={`absolute top-2 left-2 text-white text-sm bg-black/50 px-2 py-1 rounded ${timeFreq? "invisible" : ""}`}>
+                        {Math.round(dominantFreq)} Hz
                     </div>
+                </div>
 
-                    <div id="x-axis" className={`relative w-full h-6 mt-1 ${timeFreq? "invisible" : ""}`}>
-                        {xAxis.map((freq) => {
-                            const left = getLogPositionPercent(freq);
-                            return (
-                                <div key={freq} className="absolute flex flex-col items-center text-gray-300" 
-                                style={{left: `${left}%`, transform: "translateX(-50%)"}}>
-                                    <div className="w-px h-2 bg-gray-400"></div>
-                                    <div className="text-xs">
-                                        {freq >= 1000 ? `${freq / 1000}k` : freq}
-                                    </div>
+                <div id="x-axis" className={`relative w-full shrink-0 h-6 mt-1 ${timeFreq? "invisible" : ""}`}>
+                    {xAxis.map((freq) => {
+                        const left = getLogPositionPercent(freq);
+                        return (
+                            <div 
+                                key={freq} 
+                                className="absolute flex flex-col items-center text-gray-300" 
+                                style={{left: `${left}%`, transform: "translateX(-50%)"}}
+                            >
+                                <div className="w-px h-2 bg-gray-400"></div>
+                                <div className="text-xs">
+                                    {freq >= 1000 ? `${freq / 1000}k` : freq}
                                 </div>
-                            );
-                        })}
-                    </div>
+                            </div>
+                        );
+                    })}
                 </div>
-                <Slider></Slider>
+            </div>
+            <div className='shrink-0'>
+            <Slider></Slider>
             </div>
         </div>
     )

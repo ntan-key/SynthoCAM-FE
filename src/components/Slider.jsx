@@ -279,7 +279,6 @@ const Slider = () => {
 
   return (
     
-    <div>
       <div id="RangeSlider" className="range-slider">
         <div>
           <div className="range-slider-val-left"></div>
@@ -301,7 +300,6 @@ const Slider = () => {
         <input type="range" className="range-slider-input-left" min={0} max={100} step={0.1} value={freqToPercent(lowerCutoff)} onChange={lowerChange}/>
         <input type="range" className="range-slider-input-right" min={0} max={100} step={0.1} value={freqToPercent(upperCutoff)} onChange={upperChange}/>
       </div>
-    </div>
   );
 };
 
