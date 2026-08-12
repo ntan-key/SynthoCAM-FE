@@ -74,9 +74,10 @@ const Stream = () => {
 
     
     return (
-      <div ref={containerRef} className='flex-1 min-h-0 relative rounded-xl border border-border overflow-hidden'>
+      <div ref={containerRef} className='landscape:flex-1 min-h-0 relative rounded-xl border border-border overflow-hidden'>
         {/* relative is needed to overlay Stats and Toolbar
-          overflow-hidden means the image fills the container to the edges and crops anything that exceeds it*/}
+          overflow-hidden means the image fills the container to the edges and crops anything that exceeds it
+          landscape:flex-1 needed so in landscape stream takes up the remainder of the space, but not portrait*/}
           <Stats></Stats>
           <video 
             ref={videoRef}

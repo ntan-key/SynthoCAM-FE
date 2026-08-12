@@ -4,6 +4,7 @@ import { useContext, useEffect } from 'react';
 import './VolumeButton.css'
 import { AppContext } from './AppContext';
 
+
 const VolumeButton = () => {
     const { muteState, volumeState, gainRef } = useContext(AppContext);
     const [mute, setMute] = muteState;
