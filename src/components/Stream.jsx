@@ -5,7 +5,6 @@ import Stats from './Stats';
 
 
 const Stream = () => {
-    // JS goes here
     const { videoRef, audioRef } = useContext(AppContext);
     const containerRef = useRef(null);
     const [fullScreen, setFullScreen] = useState(false);
@@ -75,20 +74,22 @@ const Stream = () => {
 
     
     return (
-        <div className="border border-border rounded-xl flex flex-col flex-1 min-h-100 overflow-hidden">
-            <div ref={containerRef} className='relative flex-1 min-h-0'>
-                <Stats></Stats>
-                <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className={`w-full h-full object-cover transition-opacity duration-500 opacity-100 rounded-xl`}
-                        // className={`w-full h-full object-cover opacity-100 rounded-xl`}  // Temp to test impact on lag
-                    />   
-                <Toolbar fullScreen={fullScreen} setFullScreen={setFullScreen} onFullScreen={onFullScreen}></Toolbar>
-            </div>     
-        </div>     
+      <div ref={containerRef} className='landscape:flex-1 min-h-0 relative rounded-xl border border-border overflow-hidden'>
+        {/* relative is needed to overlay Stats and Toolbar
+          overflow-hidden means the image fills the container to the edges and crops anything that exceeds it
+          landscape:flex-1 needed so in landscape stream takes up the remainder of the space, but not portrait*/}
+          <Stats></Stats>
+          <video 
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={`h-full w-full rounded-xl opacity-100 object-cover transition-opacity duration-500`}
+          />
+           {/*h-full is required in the video component to make sure the video fills the surrounding div,
+            and Stats and Toolbar are properly overlayed */}
+          <Toolbar fullScreen={fullScreen} setFullScreen={setFullScreen} onFullScreen={onFullScreen}></Toolbar>
+      </div>   
     )
 }
 

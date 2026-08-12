@@ -4,16 +4,13 @@ import Play from '../assets/play.png'
 import Maximise from '../assets/maximise.png'
 import Minimise from '../assets/minimise.png'
 import VolumeButton from './VolumeButton'
-
 import { AppContext } from './AppContext'
-
 import { useState, useEffect, useRef, useContext } from 'react'
+
 
 const FILE_EXTENSION = '.mp4';
 
-
 const Toolbar = ({fullScreen, setFullScreen, onFullScreen}) => {
-    // JS goes here
     const { wsRef, videoRef, recordState, filenameState } = useContext(AppContext);
     const [record, setRecord] = recordState;
     const [filename, setFilename] = filenameState;

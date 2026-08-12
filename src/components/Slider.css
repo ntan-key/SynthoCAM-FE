@@ -191,3 +191,9 @@ div.range-slider > input[type="range"]::-ms-tooltip {
 .range-slider:hover > div > .range-slider-tooltip {
 	opacity: 1;
 }
+
+.range-slider-input-left,
+.range-slider-input-right {
+    /* this stops the back page swipe action on tablets */
+    touch-action: none;
+}
