@@ -50,6 +50,7 @@ const Slider = () => {
     const freq = percentToFreq(e.target.value);
     const value = clamp(freq, MIN, upperCutoff - 1);
     const percent = Number(e.target.value);
+    send_lower(value);
     setLowerCutoff(value);    
     // console.log(`lower cutoff: ${e.target.value}`);
     // console.log({ percent, freq });
@@ -67,6 +68,24 @@ const Slider = () => {
   };
 
 
+  const send_lower = async(frequency) => {
+        const res = await fetch(`/api/lower`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                frequency: frequency
+            }),
+        });
+        const data = await res.json()
+        // await response
+        if (data.status == 'ok'){
+        }
+    }
+
+
   const upperChange = (e) => {
     // console.log(`upper cutoff: ${e.target.value}`);
     
@@ -77,6 +96,7 @@ const Slider = () => {
     // trying to map position of slider to graph
     const freq = percentToFreq(e.target.value);
     const value = clamp(freq, lowerCutoff + 1, MAX);
+    send_upper(value);
     setUpperCutoff(value);
 
     // e.target.value = Math.max(e.target.value, e.target.parentNode.childNodes[1].value - (-1));
@@ -112,6 +132,24 @@ const Slider = () => {
   //   filterHighRef.current.frequency.linearRampToValueAtTime(upperCutoff, now + 0.05);
   //   }
   // }, [upperCutoff]);
+
+
+  const send_upper = async(frequency) => {
+        const res = await fetch(`/api/upper`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                frequency: frequency
+            }),
+        });
+        const data = await res.json()
+        // await response
+        if (data.status == 'ok'){
+        }
+    }
 
 
   useEffect(() => {

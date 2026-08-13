@@ -232,55 +232,60 @@ export const AppContextProvider = ({ ip, port, children }) => {
                 const analyser = audioContext.createAnalyser();
                 analyserRef.current = analyser;
 
-                const gainNode = audioContext.createGain();
-                //gainNode.gain.value = volume / 100;  /// original
-                gainNode.gain.value = volume / 100 * 3.0;     // added gain - a slider may be good next say 0% to 200%
-                gainRef.current = gainNode;
+                // moved audio filtering to backend
 
-                const filterLow = audioContext.createBiquadFilter();
-                filterLow.type = "highpass";
-                filterLow.frequency.value = lowerCutoff;
-                filterLowRef.current = filterLow;
+                // const gainNode = audioContext.createGain();
+                // //gainNode.gain.value = volume / 100;  /// original
+                // gainNode.gain.value = volume / 100 * 3.0;     // added gain - a slider may be good next say 0% to 200%
+                // gainRef.current = gainNode;
 
-                const filterHigh = audioContext.createBiquadFilter();
-                filterHigh.type = "lowpass";
-                filterHigh.frequency.value = upperCutoff;
-                filterHighRef.current = filterHigh;
+                // const filterLow = audioContext.createBiquadFilter();
+                // filterLow.type = "highpass";
+                // filterLow.frequency.value = lowerCutoff;
+                // filterLowRef.current = filterLow;
 
-                const filterHigh2 = audioContext.createBiquadFilter();
-                filterHigh2.type = "lowpass";
-                filterHigh2.frequency.value = upperCutoff;
-                filterHigh2Ref.current = filterHigh2;
+                // const filterHigh = audioContext.createBiquadFilter();
+                // filterHigh.type = "lowpass";
+                // filterHigh.frequency.value = upperCutoff;
+                // filterHighRef.current = filterHigh;
 
-                // try to remove video /constant frequeny noise(s)
-                const notch = audioContext.createBiquadFilter();
-                notch.type = "notch";
-                notch.frequency.value = 8000;
-                notch.Q.value = 2;
+                // const filterHigh2 = audioContext.createBiquadFilter();
+                // filterHigh2.type = "lowpass";
+                // filterHigh2.frequency.value = upperCutoff;
+                // filterHigh2Ref.current = filterHigh2;
 
-                // try to remove video /constant frequeny noise(s) - PAL video horizontal scan freq
-                const notch2 = audioContext.createBiquadFilter();
-                notch2.type = "notch";
-                notch2.frequency.value = 15625;
-                notch2.Q.value = 3;
+                // // try to remove video /constant frequeny noise(s)
+                // const notch = audioContext.createBiquadFilter();
+                // notch.type = "notch";
+                // notch.frequency.value = 8000;
+                // notch.Q.value = 2;
+
+                // // try to remove video /constant frequeny noise(s) - PAL video horizontal scan freq
+                // const notch2 = audioContext.createBiquadFilter();
+                // notch2.type = "notch";
+                // notch2.frequency.value = 15625;
+                // notch2.Q.value = 3;
                 
-                // Expander (soft noise gate) to reduce realatively backgound to signal noise... (WIP)
-                const compressor = audioContext.createDynamicsCompressor();
-                compressor.threshold.value = -50;
-                compressor.knee.value = 20;
-                compressor.ratio.value = 4;
-                compressor.attack.value = 0.003;
-                compressor.release.value = 0.25;
+                // // Expander (soft noise gate) to reduce realatively backgound to signal noise... (WIP)
+                // const compressor = audioContext.createDynamicsCompressor();
+                // compressor.threshold.value = -50;
+                // compressor.knee.value = 20;
+                // compressor.ratio.value = 4;
+                // compressor.attack.value = 0.003;
+                // compressor.release.value = 0.25;
 
-                source.connect(filterLow);
-                filterLow.connect(filterHigh);
-                filterHigh.connect(filterHigh2); // added for sharper cuttoff 
-                //filterHigh2.connect(analyser);
-                filterHigh2.connect(notch);      // added to remove ~8Khz
-                notch.connect(notch2);      // added to remove ~8Khz
-                notch2.connect(gainNode);
-                //compressor.connect(gainNode);
-                gainNode.connect(analyser);
+                // source.connect(filterLow);
+                // filterLow.connect(filterHigh);
+                // filterHigh.connect(filterHigh2); // added for sharper cuttoff 
+                // //filterHigh2.connect(analyser);
+                // filterHigh2.connect(notch);      // added to remove ~8Khz
+                // notch.connect(notch2);      // added to remove ~8Khz
+                // notch2.connect(gainNode);
+                // //compressor.connect(gainNode);
+                // gainNode.connect(analyser);
+                // analyser.connect(audioContext.destination);
+
+                source.connect(analyser);
                 analyser.connect(audioContext.destination);
 
                 setAudioStream(event.streams[0]);
