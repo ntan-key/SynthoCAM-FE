@@ -13,13 +13,38 @@ const VolumeButton = () => {
     
     const soundButtonPress = () => {
         setMute(!mute);
+        if (mute){
+            sendVolume(volume)
+        }
+        else{
+            sendVolume(0)
+        }
         console.log(mute? 'Unmute' : 'Mute')
     }
 
 
     const volumeChange = (e) => {
-        console.log(`volume: ${e.target.value}`)
+        // console.log(`volume: ${e.target.value}`)
+        sendVolume(e.target.value)
         setVolume(e.target.value)
+    }
+
+
+    const sendVolume = async(volume) => {
+        const res = await fetch(`/api/audio/volume`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                volume: volume
+            }),
+        });
+        const data = await res.json()
+        // await response
+        if (data.status == 'ok'){
+        }
     }
 
 

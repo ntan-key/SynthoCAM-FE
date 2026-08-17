@@ -67,6 +67,24 @@ const Slider = () => {
   };
 
 
+  const send_lower = async(frequency) => {
+        const res = await fetch(`/api/audio/lower`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                frequency: frequency
+            }),
+        });
+        const data = await res.json()
+        // await response
+        if (data.status == 'ok'){
+        }
+    }
+
+
   const upperChange = (e) => {
     // console.log(`upper cutoff: ${e.target.value}`);
     
@@ -112,6 +130,44 @@ const Slider = () => {
   //   filterHighRef.current.frequency.linearRampToValueAtTime(upperCutoff, now + 0.05);
   //   }
   // }, [upperCutoff]);
+
+
+  const send_upper = async(frequency) => {
+        const res = await fetch(`/api/audio/upper`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                frequency: frequency
+            }),
+        });
+        const data = await res.json()
+        // await response
+        if (data.status == 'ok'){
+        }
+    }
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      send_lower(lowerCutoff)
+    }, 500);
+
+    return () => clearTimeout(timeout);
+
+  }, [lowerCutoff])
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      send_upper(upperCutoff)
+    }, 500);
+
+    return () => clearTimeout(timeout);
+
+  }, [upperCutoff])
 
 
   useEffect(() => {
