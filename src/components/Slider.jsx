@@ -50,7 +50,6 @@ const Slider = () => {
     const freq = percentToFreq(e.target.value);
     const value = clamp(freq, MIN, upperCutoff - 1);
     const percent = Number(e.target.value);
-    send_lower(value);
     setLowerCutoff(value);    
     // console.log(`lower cutoff: ${e.target.value}`);
     // console.log({ percent, freq });
@@ -69,7 +68,7 @@ const Slider = () => {
 
 
   const send_lower = async(frequency) => {
-        const res = await fetch(`/api/lower`, {
+        const res = await fetch(`/api/audio/lower`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -96,7 +95,6 @@ const Slider = () => {
     // trying to map position of slider to graph
     const freq = percentToFreq(e.target.value);
     const value = clamp(freq, lowerCutoff + 1, MAX);
-    send_upper(value);
     setUpperCutoff(value);
 
     // e.target.value = Math.max(e.target.value, e.target.parentNode.childNodes[1].value - (-1));
@@ -135,7 +133,7 @@ const Slider = () => {
 
 
   const send_upper = async(frequency) => {
-        const res = await fetch(`/api/upper`, {
+        const res = await fetch(`/api/audio/upper`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -150,6 +148,26 @@ const Slider = () => {
         if (data.status == 'ok'){
         }
     }
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      send_lower(lowerCutoff)
+    }, 500);
+
+    return () => clearTimeout(timeout);
+
+  }, [lowerCutoff])
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      send_upper(upperCutoff)
+    }, 500);
+
+    return () => clearTimeout(timeout);
+
+  }, [upperCutoff])
 
 
   useEffect(() => {

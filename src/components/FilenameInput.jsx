@@ -28,7 +28,7 @@ const FilenameInput = () => {
 
 
     return (
-        <div className="w-full h-10 shrink-0 flex border border-border rounded-sm p-1 text-white font-bold text-2xl">
+        <div className="w-full h-10 flex border border-border rounded-sm p-1 text-white font-bold text-2xl">
             <input 
                 ref={inputRef} 
                 value={filename} 
