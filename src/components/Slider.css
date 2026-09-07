@@ -5,8 +5,8 @@
 
 .range-slider {
     --range-slider-common-height: 16px;
-    --range-slider-handle-width:50px;
-    --range-slider-handle-height: 50px;
+    --range-slider-handle-width:45px;
+    --range-slider-handle-height: 45px;
 
     position: relative;
     display: flex;
@@ -58,7 +58,7 @@
 .range-slider > div > .range-slider-handle {
     z-index: 1;
     position: absolute;
-	top: -5px;
+	top: -15px;
     margin-left: -11px;
     width: var(--range-slider-handle-width);
     height: var(--range-slider-handle-height);
