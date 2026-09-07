@@ -5,8 +5,8 @@
 
 .range-slider {
     --range-slider-common-height: 16px;
-    --range-slider-handle-width: 24px;
-    --range-slider-handle-height: 24px;
+    --range-slider-handle-width:50px;
+    --range-slider-handle-height: 50px;
 
     position: relative;
     display: flex;

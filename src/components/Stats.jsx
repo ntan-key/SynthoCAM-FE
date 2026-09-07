@@ -68,11 +68,11 @@ const Stats = () => {
                     <li>Storage Usage: {storage}/{totalStorage} GB</li>
                     <li>Camera Status: {cameraStatus}</li>
                     <li>Microphone Status: {microphoneStatus}</li>
-                    <li>Video Backend Lag: {videoLag} ms</li>
+                    {/* <li>Video Backend Lag: {videoLag} ms</li>
                     <li>Estimated Total Lag: {displayLag} ms</li>
                     <li>Capture TS: {captureTs}</li>
                     <li>Tablet Now: {tabletNow}</li>
-                    <li>Raw Diff: {tabletNow - captureTs} ms</li>
+                    <li>Raw Diff: {tabletNow - captureTs} ms</li> */}
                 </ul>
             </div>
         </div>
